@@ -4,13 +4,10 @@
   "description": "Generate component files in a folder from the context menu.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.95.2"
   },
   "categories": [
     "Other"
-  ],
-  "activationEvents": [
-    "onCommand:filesgenerator.generateComponent"
   ],
   "main": "./dist/extension.js",
   "contributes": {

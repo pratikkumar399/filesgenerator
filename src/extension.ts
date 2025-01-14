@@ -4,38 +4,25 @@ import * as path from 'path';
 export function activate(context: vscode.ExtensionContext) {
     // Register the "Generate Component" command
     const disposable = vscode.commands.registerCommand(
-        'extension.generateComponent',
+        'filesgenerator.generateComponent',
         async (uri: vscode.Uri) => {
             if (uri && uri.fsPath) {
                 const folderPath = uri.fsPath;
+                const componentName = path.basename(folderPath);
 
-                // Prompt the user for a component name
-                const componentName = await vscode.window.showInputBox({
-                    prompt: 'Enter the component name',
-                    placeHolder: 'ComponentName',
-                });
-
-                if (!componentName) {
-                    vscode.window.showErrorMessage('Component name is required.');
-                    return;
-                }
-
-                // Generate the files
                 await createFiles(folderPath, componentName);
             }
         }
     );
-
     context.subscriptions.push(disposable);
 }
 
 async function createFiles(folderPath: string, componentName: string) {
     const fileNames = [
-        `${componentName}.ts`,
+        `${componentName}.tsx`,
         `${componentName}.module.scss`,
         `index.ts`
     ];
-
     for (const fileName of fileNames) {
         const filePath = path.join(folderPath, fileName);
         const fileUri = vscode.Uri.file(filePath);
@@ -48,17 +35,26 @@ async function createFiles(folderPath: string, componentName: string) {
             vscode.window.showErrorMessage(`Failed to create file ${filePath}: ${error}`);
         }
     }
-
     vscode.window.showInformationMessage(`Component "${componentName}" generated successfully.`);
 }
 
 function getFileContent(fileName: string, componentName: string): string {
     if (fileName.endsWith('.module.scss')) {
-        return `/* Styles for ${componentName} */`;
+        return `.root{}`;
     } else if (fileName === 'index.ts') {
-        return `export { default } from './${componentName}';`;
+        return `export { ${componentName} as default } from './${componentName}';`;
     } else {
-        return `// Logic for ${componentName}`;
+        return `
+import React from 'react';
+import s from './${componentName}.module.scss';
+
+export const ${componentName} = () => {
+    return (
+        <div className={s.root}>
+            // Component content
+        </div>
+);
+        `;
     }
 }
 
