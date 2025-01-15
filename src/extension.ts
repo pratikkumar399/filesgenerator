@@ -7,14 +7,48 @@ export function activate(context: vscode.ExtensionContext) {
         'filesgenerator.generateComponent',
         async (uri: vscode.Uri) => {
             if (uri && uri.fsPath) {
-                const folderPath = uri.fsPath;
-                const componentName = path.basename(folderPath);
+                // Prompt user for the folder name
+                const folderName = await vscode.window.showInputBox({
+                    prompt: 'Enter the folder name for the new component:',
+                    placeHolder: 'ComponentName',
+                });
 
-                await createFiles(folderPath, componentName);
+                if (!folderName) {
+                    vscode.window.showErrorMessage('Folder name cannot be empty.');
+                    return;
+                }
+
+                // Validate the folder name
+                if (!isValidFolderName(folderName)) {
+                    vscode.window.showErrorMessage(
+                        'Invalid folder name. Try creating with a different folder name (e.g. MyComponent , myComponent, etc)).'
+                    );
+                    return;
+                }
+
+                const folderPath = path.join(uri.fsPath, folderName);
+
+                try {
+                    // Create the new folder
+                    await vscode.workspace.fs.createDirectory(vscode.Uri.file(folderPath));
+
+                    // Generate the component files in the new folder
+                    await createFiles(folderPath, folderName);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to create folder or files: ${error}`);
+                }
+            } else {
+                vscode.window.showErrorMessage('No folder selected. Right-click on a folder and try again.');
             }
         }
     );
     context.subscriptions.push(disposable);
+}
+
+function isValidFolderName(name: string): boolean {
+    // Validation: should not start with a number and should not contain special characters.
+    const validFolderNameRegex = /^[A-Za-z][A-Za-z0-9]*$/;
+    return validFolderNameRegex.test(name);
 }
 
 async function createFiles(folderPath: string, componentName: string) {
@@ -46,14 +80,14 @@ function getFileContent(fileName: string, componentName: string): string {
     } else {
         return `
 import React from 'react';
-import s from './${componentName}.module.scss';
+import styles from './${componentName}.module.scss';
 
-export const ${componentName} = () => {
+const ${componentName} = () => {
     return (
         <div className={s.root}>
             
         </div>
-    )}
+)};
         `;
     }
 }
