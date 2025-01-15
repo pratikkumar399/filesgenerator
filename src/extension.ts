@@ -51,9 +51,9 @@ import s from './${componentName}.module.scss';
 export const ${componentName} = () => {
     return (
         <div className={s.root}>
-            // Component content
+            
         </div>
-);
+    )}
         `;
     }
 }
