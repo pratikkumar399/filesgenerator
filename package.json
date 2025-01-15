@@ -2,7 +2,7 @@
   "name": "filesgenerator",
   "displayName": "Files Generator",
   "description": "Generate component files in a folder on a simple click",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.75.1"
   },
