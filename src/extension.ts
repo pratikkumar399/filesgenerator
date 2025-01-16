@@ -80,9 +80,9 @@ function getFileContent(fileName: string, componentName: string): string {
     } else {
         return `
 import React from 'react';
-import styles from './${componentName}.module.scss';
+import s from './${componentName}.module.scss';
 
-const ${componentName} = () => {
+export const ${componentName} = () => {
     return (
         <div className={s.root}>
             
